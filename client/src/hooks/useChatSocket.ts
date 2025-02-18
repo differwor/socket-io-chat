@@ -1,28 +1,26 @@
 import { useEffect } from "react";
 import useChatStore from "../store/useChatStore";
-import { Socket } from "socket.io-client";
+import { User } from "../types/user";
+
+const SOCKET_URL = 'http://localhost:4000';
 
 const useChatSocket = (socketUrl: string): {
   isConnected: boolean;
-  socket: Socket | null;
   error: string | null;
+  currentUser: User | null;
 } => {
   const {
     connectSocket,
     disconnectSocket,
-    login,
+    currentUser,
     isConnected,
-    socket,
     error
   } = useChatStore();
   
   useEffect(() => {
-    // Connect to socket when component mounts if URL and token are provided
     if (socketUrl) {
-      connectSocket(socketUrl);
-      login('david');
+      connectSocket(SOCKET_URL);
     }
-    
     // Clean up socket connection when component unmounts
     return () => {
       disconnectSocket();
@@ -31,7 +29,7 @@ const useChatSocket = (socketUrl: string): {
   
   return {
     isConnected,
-    socket,
+    currentUser,
     error
   };
 };

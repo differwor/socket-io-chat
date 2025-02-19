@@ -12,13 +12,19 @@ export const AuthService = {
       return null;
     }
 
-    if (existingUser) {
-      existingUser.online = true;
-      return existingUser;
+    const participatedUser = ChatRepository.getParticipatedUsers().find(
+      (u) => u.username === username
+    );
+
+    if (participatedUser) {
+      participatedUser.online = true;
+      ChatRepository.addOnlineUser(participatedUser);
+      return participatedUser;
     }
 
     const newUser: User = { id: uuidv4(), username, online: true };
-    ChatRepository.addUser(newUser);
+    ChatRepository.storeUser(newUser);
+    ChatRepository.addOnlineUser(newUser);
     return newUser;
   },
 

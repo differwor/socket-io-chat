@@ -6,6 +6,7 @@ import {
 } from '@nx-chat-assignment/shared-models';
 import { v4 as uuidv4 } from 'uuid';
 
+const participatedUsers: User[] = [];
 const chatHistory: ChatHistory = [];
 let onlineUsers: OnlineUsers = [];
 
@@ -33,7 +34,12 @@ export const ChatRepository = {
     return chatMessage;
   },
 
-  addUser: (user: User) => {
+  storeUser: (user: User) => {
+    const existed = participatedUsers.find((u) => u.id === user.id);
+    if (!existed) participatedUsers.push(user);
+  },
+
+  addOnlineUser: (user: User) => {
     const existingUser = onlineUsers.find((u) => u.id === user.id);
     if (!existingUser) {
       onlineUsers.push(user);
@@ -49,4 +55,5 @@ export const ChatRepository = {
   },
 
   getUsersOnline: (): OnlineUsers => onlineUsers,
+  getParticipatedUsers: (): User[] => participatedUsers,
 };

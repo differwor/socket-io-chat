@@ -155,6 +155,7 @@ const Board: FC = () => {
                     type="submit"
                     className="bg-[#333333] px-2.5 rounded-r-md"
                     aria-label="send message"
+                    data-testid="submit-message"
                   >
                     <svg
                       className="w-6 h-6"

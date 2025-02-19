@@ -26,4 +26,8 @@ export default defineConfig({
       transformMixedEsModules: true,
     },
   },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+  },
 });

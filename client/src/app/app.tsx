@@ -28,7 +28,7 @@ export function App() {
           {isConnected ? 'Connected to Web Socket!' : 'No connection!'}
         </div>
       </div>
-      {!currentUser?.online ? <Login /> : <Board />}
+      {!currentUser ? <Login /> : <Board />}
     </div>
   );
 }

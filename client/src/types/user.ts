@@ -1,5 +1,5 @@
 export interface User {
-  id: string | null;
+  id: string;
   username: string;
   online: boolean;
 }

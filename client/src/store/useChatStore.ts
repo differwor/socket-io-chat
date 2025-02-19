@@ -1,11 +1,14 @@
 import { io, Socket } from 'socket.io-client';
 import { create } from 'zustand';
 import { User } from '../types/user';
+import { ChatMessage } from '../types/chat';
 
 type ChatState = {
   socket: Socket | null;
   isConnected: boolean;
   currentUser: User | null;
+  receiver: User | null;
+  messages: ChatMessage[];
   users: User[];
   error: string | null;
 };
@@ -13,12 +16,17 @@ type ChatState = {
 type ChatAction = {
   connectSocket: (url: string) => void;
   login: (username: string) => void;
+  sendMessage: (message: string) => void;
+  setMessages: (data: ChatMessage[]) => void;
+  setReceiver: (user: User | null) => void;
   disconnectSocket: () => void;
 };
 const useChatStore = create<ChatState & ChatAction>((set, get) => ({
   socket: null,
   isConnected: false,
   currentUser: null,
+  receiver: null,
+  messages: [],
   users: [],
   error: null,
 
@@ -52,13 +60,32 @@ const useChatStore = create<ChatState & ChatAction>((set, get) => ({
         if (!value.data) return;
         const { data } = value;
 
-        const newUser = data.pop();
-        set({ users: data });
+        const currentUsername = sessionStorage.getItem('currentUser');
+        const newUser = data[data.length - 1];
+        set({ users: data.filter((u) => u.username !== currentUsername) });
 
-        if (newUser?.username === sessionStorage.getItem('currentUser')) {
+        if (newUser?.username === currentUsername) {
           set({ currentUser: newUser });
         }
       });
+
+      socket.on(
+        'message:receive',
+        (value: { event?: string; data?: ChatMessage }) => {
+          if (!value.data) return;
+          const { data } = value;
+          const { receiver, currentUser, messages } = get();
+
+          if (
+            (currentUser?.id === data.sender.id &&
+              receiver?.id === data.receiver.id) ||
+            (currentUser?.id === data.receiver.id &&
+              receiver?.id === data.sender.id)
+          ) {
+            set({ messages: [...messages, data] });
+          }
+        }
+      );
     } catch (error) {
       set({
         error: `Failed to connect: ${
@@ -70,8 +97,24 @@ const useChatStore = create<ChatState & ChatAction>((set, get) => ({
 
   login: (username) => {
     const { socket } = get();
-    if (socket) {
+    if (socket && socket.connected) {
       socket.emit('user:login', username);
+    }
+  },
+
+  sendMessage: (message) => {
+    const { socket, receiver } = get();
+    if (socket && socket.connected && receiver) {
+      socket.emit('message:send', { receiver, message });
+    }
+  },
+
+  setMessages: (data: ChatMessage[]) => set({ messages: data }),
+
+  setReceiver: (user: User | null) => {
+    const { receiver } = get();
+    if (!receiver || receiver.id !== user?.id) {
+      set({ receiver: user });
     }
   },
 

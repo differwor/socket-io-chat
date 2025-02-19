@@ -16,6 +16,8 @@
    # run tests
    pnpm test
    ```
+## **Updates:**
+- Handling store user info to be able to show previous messages
 
 ## **Description:**
 

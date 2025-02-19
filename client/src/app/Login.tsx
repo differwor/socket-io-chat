@@ -4,9 +4,7 @@ import useChatStore from '../store/useChatStore';
 const Login: FC = () => {
   const { login } = useChatStore();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
+  const handleSubmit = (formData: FormData) => {
     const username = formData.get('username') as string;
     if (username) {
       sessionStorage.setItem('currentUser', username);
@@ -16,9 +14,9 @@ const Login: FC = () => {
 
   return (
     <div className="min-h-screen w-full flex justify-center items-center">
-      <form  method="post" onSubmit={handleSubmit} className="relative w-full max-w-xs">
+      <form action={handleSubmit} className="relative w-full max-w-xs">
         <input
-          name='username'
+          name="username"
           className="shadow-lg shadow-slate-200 peer transition-all px-5 py-3 w-full text-lg rounded-md border border-gray-200 outline-none select-all"
           type="text"
           placeholder=""
